@@ -7,6 +7,8 @@ import { MenusModule } from './modules/menu/menu.module';
 
 import { Menu } from './modules/menu/entities/menu.entity';
 import { Plato } from './modules/plato/entities/plato.entity';
+import { MenuPlato } from './modules/menu-plato/entities/menu-plato.entity';
+// import { MenuPlatoModule } from './modules/menu-plato/menu-plato.module';
 
 @Module({
   imports: [
@@ -18,12 +20,13 @@ import { Plato } from './modules/plato/entities/plato.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Plato, Menu],
+      entities: [Plato, Menu, MenuPlato],
       synchronize: true, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
       logging: true,
     }),
     PlatosModule,
     MenusModule,
+    // MenuPlatoModule,
   ],
   controllers: [],
   providers: [],

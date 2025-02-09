@@ -3,14 +3,13 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Put,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
 import { CreateMenuDto } from './dto/create-menu.dto';
-import { UpdateMenuDto } from './dto/update-menu.dto';
+import { MealType } from '@/interfaces';
 
 @Controller('api/v1/menus')
 export class MenuController {
@@ -24,7 +23,7 @@ export class MenuController {
   @Put(':menuId/assign/:mealType/:platoId')
   assignPlatoToMenu(
     @Param('menuId') menuId: number,
-    @Param('mealType') mealType: 'desayuno' | 'almuerzo' | 'cena',
+    @Param('mealType') mealType: MealType,
     @Param('platoId') platoId: number,
   ) {
     return this.menuService.assignPlatoToMenu(menuId, mealType, platoId);
@@ -33,7 +32,7 @@ export class MenuController {
   @Put(':menuId/remove/:mealType/:platoId')
   removePlatoFromMenu(
     @Param('menuId') menuId: number,
-    @Param('mealType') mealType: 'desayuno' | 'almuerzo' | 'cena',
+    @Param('mealType') mealType: MealType,
     @Param('platoId') platoId: number,
   ) {
     return this.menuService.removePlatoFromMenu(menuId, mealType, platoId);
@@ -45,13 +44,8 @@ export class MenuController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.menuService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: number, @Body() updateMenuDto: UpdateMenuDto) {
-    return this.menuService.update(id, updateMenuDto);
+  findOne(@Param('id') id: number) {
+    return this.menuService.findOne(id);
   }
 
   @Delete(':id')

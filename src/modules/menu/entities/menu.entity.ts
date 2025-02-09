@@ -1,11 +1,5 @@
-import { Plato } from '@/modules/plato/entities/plato.entity';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { MenuPlato } from '@/modules/menu-plato/entities/menu-plato.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Menu {
@@ -15,15 +9,6 @@ export class Menu {
   @Column({ type: 'date' })
   fecha: Date;
 
-  @ManyToMany(() => Plato, { cascade: true })
-  @JoinTable()
-  desayuno?: Plato[];
-
-  @ManyToMany(() => Plato, { cascade: true })
-  @JoinTable()
-  almuerzo?: Plato[];
-
-  @ManyToMany(() => Plato, { cascade: true })
-  @JoinTable()
-  cena?: Plato[];
+  @OneToMany(() => MenuPlato, (menuPlato) => menuPlato.menu, { cascade: true })
+  menuPlatos: MenuPlato[];
 }

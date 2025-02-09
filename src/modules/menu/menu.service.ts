@@ -3,16 +3,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { CreateMenuDto } from './dto/create-menu.dto';
-import { UpdateMenuDto } from './dto/update-menu.dto';
 
 import { Menu } from './entities/menu.entity';
 import { Plato } from '../plato/entities/plato.entity';
+import { MenuPlato } from '../menu-plato/entities/menu-plato.entity';
+import { MealType } from '@/interfaces';
 
 @Injectable()
 export class MenuService {
   constructor(
     @InjectRepository(Menu) private menuRepository: Repository<Menu>,
     @InjectRepository(Plato) private platoRepository: Repository<Plato>,
+    @InjectRepository(MenuPlato)
+    private menuPlatoRepository: Repository<MenuPlato>,
   ) {}
 
   async create(createMenuDto: CreateMenuDto): Promise<Menu> {
@@ -21,65 +24,83 @@ export class MenuService {
 
   async findAll(): Promise<Menu[]> {
     return await this.menuRepository.find({
-      relations: ['desayuno', 'almuerzo', 'cena'],
+      relations: ['menuPlatos', 'menuPlatos.plato'],
     });
   }
 
   async findOne(id: number): Promise<Menu> {
     return await this.menuRepository.findOne({
       where: { id },
-      relations: ['desayuno', 'almuerzo', 'cena'],
+      relations: ['menuPlatos', 'menuPlatos.plato'],
     });
   }
 
   async assignPlatoToMenu(
     menuId: number,
-    mealType: 'desayuno' | 'almuerzo' | 'cena',
+    mealType: MealType,
     platoId: number,
   ): Promise<Menu> {
-    const menu = await this.getMenu(menuId, mealType);
+    const menu = await this.getMenu(menuId);
     const plato = await this.getPlato(platoId);
 
-    if (menu[mealType].some((plato) => plato.id === platoId)) {
-      throw new Error('Plato already assigned to menu');
+    if (!Object.values(MealType).includes(mealType)) {
+      throw new Error('Categoría no válida');
     }
 
-    menu[mealType].push(plato);
-    return this.menuRepository.save(menu);
+    const existingMenuPlato = menu.menuPlatos.find(
+      (mp) => mp.plato.id === plato.id && mp.categoria === mealType,
+    );
+
+    if (existingMenuPlato) {
+      throw new Error('El plato ya está asignado a esta categoría en el menú');
+    }
+
+    const newMenuPlato = await this.menuPlatoRepository.create({
+      menu,
+      categoria: mealType,
+      plato,
+    });
+
+    await this.menuPlatoRepository.save(newMenuPlato);
+
+    return this.menuRepository.findOne({
+      where: { id: menuId },
+      relations: ['menuPlatos', 'menuPlatos.plato'],
+    });
   }
 
   async removePlatoFromMenu(
     menuId: number,
-    mealType: 'desayuno' | 'almuerzo' | 'cena',
+    mealType: MealType,
     platoId: number,
   ): Promise<Menu> {
-    const menu = await this.getMenu(menuId, mealType);
-
+    await this.getMenu(menuId);
     await this.getPlato(platoId);
 
-    menu[mealType] = menu[mealType].filter(
-      (plato) => plato.id !== Number(platoId),
-    );
+    await this.menuPlatoRepository.delete({
+      menu: { id: menuId },
+      plato: { id: platoId },
+      categoria: mealType,
+    });
 
-    return this.menuRepository.save(menu);
+    return this.menuRepository.findOne({
+      where: { id: menuId },
+      relations: ['menuPlatos', 'menuPlatos.plato'],
+    });
   }
 
-  async update(id: number, updateMenuDto: UpdateMenuDto): Promise<Menu> {
-    return (await this.menuRepository.update(id, updateMenuDto)).raw;
+  async remove(id: number): Promise<void> {
+    await this.menuRepository.delete(id);
   }
 
-  async remove(id: number): Promise<Menu> {
-    return (await this.menuRepository.delete(id)).raw;
-  }
-
-  async getMenu(menuId: number, mealType: 'desayuno' | 'almuerzo' | 'cena') {
+  async getMenu(menuId: number) {
     const menu = await this.menuRepository.findOne({
       where: { id: menuId },
-      relations: [mealType],
+      relations: ['menuPlatos', 'menuPlatos.plato'],
     });
 
     if (!menu) {
-      throw new Error('Menu not found');
+      throw new Error('Menu no encontrado');
     } else {
       return menu;
     }
@@ -89,7 +110,7 @@ export class MenuService {
     const plato = await this.platoRepository.findOneBy({ id: platoId });
 
     if (!plato) {
-      throw new Error('Plato not found');
+      throw new Error('Plato no encontrado');
     } else {
       return plato;
     }
