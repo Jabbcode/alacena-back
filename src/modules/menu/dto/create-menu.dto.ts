@@ -1,6 +1,7 @@
-import { IsDate } from 'class-validator';
+import { IsDate, IsEmpty } from 'class-validator';
 
 export class CreateMenuDto {
-  @IsDate()
-  fecha: string;
+  @IsDate({ message: 'Debe tener un formato valido' })
+  @IsEmpty({ message: 'La fecha no puede estar vacia' })
+  fecha: Date;
 }

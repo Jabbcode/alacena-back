@@ -8,6 +8,7 @@ import { Menu } from './entities/menu.entity';
 import { Plato } from '../plato/entities/plato.entity';
 import { MenuPlato } from '../menu-plato/entities/menu-plato.entity';
 import { MealType } from '@/interfaces';
+import { CreateMenuPlatoDto } from '../menu-plato/dto/create-menu-plato.dto';
 
 @Injectable()
 export class MenuService {
@@ -55,11 +56,12 @@ export class MenuService {
       throw new Error('El plato ya está asignado a esta categoría en el menú');
     }
 
-    const newMenuPlato = await this.menuPlatoRepository.create({
-      menu,
-      categoria: mealType,
-      plato,
-    });
+    const newMenuPlato: CreateMenuPlatoDto =
+      await this.menuPlatoRepository.create({
+        menu,
+        categoria: mealType,
+        plato,
+      });
 
     await this.menuPlatoRepository.save(newMenuPlato);
 
