@@ -1,10 +1,12 @@
-import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { TiposComidaModule } from './modules/tipos-comida/tipos-comida.module';
-import { ComidasModule } from './modules/comidas/comidas.module';
-import { PlanComidaModule } from './modules/plan-comida/plan-comida.module';
+
+import { PlatosModule } from './modules/plato/plato.module';
+import { MenusModule } from './modules/menu/menu.module';
+
+import { Menu } from './modules/menu/entities/menu.entity';
+import { Plato } from './modules/plato/entities/plato.entity';
 
 @Module({
   imports: [
@@ -16,13 +18,12 @@ import { PlanComidaModule } from './modules/plan-comida/plan-comida.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [join(__dirname, '/modules', '**', '*.entity{.ts,.js}')],
+      entities: [Plato, Menu],
       synchronize: true, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
       logging: true,
     }),
-    TiposComidaModule,
-    ComidasModule,
-    PlanComidaModule,
+    PlatosModule,
+    MenusModule,
   ],
   controllers: [],
   providers: [],
