@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -20,7 +20,15 @@ export class MenuService {
   ) {}
 
   async create(createMenuDto: CreateMenuDto): Promise<Menu> {
-    return await this.menuRepository.save(createMenuDto);
+    try {
+      const newMenu = this.menuRepository.create(createMenuDto);
+      return await this.menuRepository.save(newMenu);
+    } catch (error) {
+      if (error?.code === '23505') {
+        throw new ConflictException('Ya existe un menú con la misma fecha');
+      }
+      throw error;
+    }
   }
 
   async findAll(): Promise<Menu[]> {

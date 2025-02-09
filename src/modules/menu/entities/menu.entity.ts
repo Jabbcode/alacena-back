@@ -1,5 +1,11 @@
 import { MenuPlato } from '@/modules/menu-plato/entities/menu-plato.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Menu {
@@ -7,6 +13,7 @@ export class Menu {
   id: number;
 
   @Column({ type: 'date' })
+  @Index('IDX_MENU_FECHA', { unique: true })
   fecha: Date;
 
   @OneToMany(() => MenuPlato, (menuPlato) => menuPlato.menu, { cascade: true })
