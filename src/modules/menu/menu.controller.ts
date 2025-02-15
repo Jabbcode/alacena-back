@@ -22,13 +22,13 @@ export class MenuController {
     return this.menuService.create(createMenuDto);
   }
 
-  @Put(':menuId/assign/:mealType/:platoId')
+  @Put('/assign/:mealType/:platoId')
   assignPlatoToMenu(
-    @Param('menuId') menuId: number,
     @Param('mealType') mealType: MealType,
     @Param('platoId') platoId: number,
+    @Body() createMenuDto: CreateMenuDto,
   ) {
-    return this.menuService.assignPlatoToMenu(menuId, mealType, platoId);
+    return this.menuService.assignPlatoToMenu(mealType, platoId, createMenuDto);
   }
 
   @Put(':menuId/remove/:mealType/:platoId')

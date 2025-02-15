@@ -59,36 +59,48 @@ export class MenuService {
   }
 
   async assignPlatoToMenu(
-    menuId: number,
     mealType: MealType,
     platoId: number,
+    createMenuDto: CreateMenuDto,
   ): Promise<Menu> {
-    const menu = await this.getMenu(menuId);
+    let menu: Menu = null;
+    let id: number = null;
+
+    const existeMenu = await this.getMenuForFecha(createMenuDto.fecha);
     const plato = await this.getPlato(platoId);
+
+    if (existeMenu === null) {
+      menu = await this.menuRepository.save(createMenuDto);
+      id = menu.id;
+    } else {
+      menu = await this.getMenuForFecha(createMenuDto.fecha);
+      id = menu.id;
+
+      const existingMenuPlato = menu.menuPlatos.find(
+        (mp) => mp.plato.id === plato.id && mp.categoria === mealType,
+      );
+
+      if (existingMenuPlato) {
+        throw new Error(
+          'El plato ya está asignado a esta categoría en el menú',
+        );
+      }
+    }
 
     if (!Object.values(MealType).includes(mealType)) {
       throw new Error('Categoría no válida');
     }
 
-    const existingMenuPlato = menu.menuPlatos.find(
-      (mp) => mp.plato.id === plato.id && mp.categoria === mealType,
-    );
-
-    if (existingMenuPlato) {
-      throw new Error('El plato ya está asignado a esta categoría en el menú');
-    }
-
-    const newMenuPlato: CreateMenuPlatoDto =
-      await this.menuPlatoRepository.create({
-        menu,
-        categoria: mealType,
-        plato,
-      });
+    const newMenuPlato: CreateMenuPlatoDto = this.menuPlatoRepository.create({
+      menu,
+      categoria: mealType,
+      plato,
+    });
 
     await this.menuPlatoRepository.save(newMenuPlato);
 
     return this.menuRepository.findOne({
-      where: { id: menuId },
+      where: { id },
       relations: ['menuPlatos', 'menuPlatos.plato'],
     });
   }
@@ -128,6 +140,13 @@ export class MenuService {
     } else {
       return menu;
     }
+  }
+
+  async getMenuForFecha(fecha: Date) {
+    return await this.menuRepository.findOne({
+      where: { fecha },
+      relations: ['menuPlatos', 'menuPlatos.plato'],
+    });
   }
 
   async getPlato(platoId: number) {
