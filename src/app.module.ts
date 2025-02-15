@@ -21,7 +21,7 @@ import { MenuPlato } from './modules/menu-plato/entities/menu-plato.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [Plato, Menu, MenuPlato],
-      synchronize: true, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
+      synchronize: false, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
       logging: true,
     }),
     PlatosModule,
