@@ -6,10 +6,12 @@ import {
   Param,
   Delete,
   Put,
+  HttpCode,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { MealType } from '@/interfaces';
+import { FilterMenuDto } from './dto/filter-menu.dto';
 
 @Controller('api/v1/menus')
 export class MenuController {
@@ -41,6 +43,12 @@ export class MenuController {
   @Get()
   findAll() {
     return this.menuService.findAll();
+  }
+
+  @Post('/search')
+  @HttpCode(200)
+  async findByFilter(@Body() filters: FilterMenuDto) {
+    return await this.menuService.findByFilter(filters);
   }
 
   @Get(':id')

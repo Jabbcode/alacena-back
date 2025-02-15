@@ -9,6 +9,7 @@ import { Plato } from '../plato/entities/plato.entity';
 import { MenuPlato } from '../menu-plato/entities/menu-plato.entity';
 import { MealType } from '@/interfaces';
 import { CreateMenuPlatoDto } from '../menu-plato/dto/create-menu-plato.dto';
+import { FilterMenuDto } from './dto/filter-menu.dto';
 
 @Injectable()
 export class MenuService {
@@ -35,6 +36,19 @@ export class MenuService {
     return await this.menuRepository.find({
       relations: ['menuPlatos', 'menuPlatos.plato'],
     });
+  }
+
+  async findByFilter(filters: FilterMenuDto): Promise<Menu[]> {
+    const query = this.menuRepository.createQueryBuilder('menu');
+
+    query.leftJoinAndSelect('menu.menuPlatos', 'menuPlatos');
+    query.leftJoinAndSelect('menuPlatos.plato', 'plato');
+
+    if (filters.fecha) {
+      query.andWhere('menu.fecha = :fecha', { fecha: filters.fecha });
+    }
+
+    return await query.getMany();
   }
 
   async findOne(id: number): Promise<Menu> {
