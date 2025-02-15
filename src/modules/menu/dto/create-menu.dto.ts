@@ -1,6 +1,6 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsDefined } from 'class-validator';
 
 export class CreateMenuDto {
-  @IsNotEmpty({ message: 'La fecha no puede estar vacia' })
+  @IsDefined({ message: 'La fecha es obligatoria' })
   fecha: Date;
 }
