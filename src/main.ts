@@ -16,7 +16,7 @@ async function bootstrap() {
   );
 
   const corsOptions: CorsOptions = {
-    origin: ['http://localhost:5173'], // Permite orígenes específicos
+    origin: ['http://localhost:5173', 'https://alacena-front.onrender.com'], // Permite orígenes específicos
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos HTTP permitidos
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
     credentials: true, // Habilita el envío de credenciales (cookies, autenticación, etc.)
