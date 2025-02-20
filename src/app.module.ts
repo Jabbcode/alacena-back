@@ -24,6 +24,7 @@ import { MenuPlato } from './modules/menu-plato/entities/menu-plato.entity';
       autoLoadEntities: true,
       synchronize: true, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
       logging: true,
+      migrations: [],
     }),
     PlatosModule,
     MenusModule,
