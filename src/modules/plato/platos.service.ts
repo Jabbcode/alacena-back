@@ -14,6 +14,16 @@ export class PlatosService {
   ) {}
 
   async create(createPlatoDto: CreatePlatoDto): Promise<Plato> {
+    const existePlato = await this.platoRepository.findOne({
+      where: {
+        nombre: createPlatoDto.nombre,
+      },
+    });
+
+    if (existePlato) {
+      throw new Error('Ya existe un plato con ese nombre');
+    }
+
     return await this.platoRepository.save(createPlatoDto);
   }
 

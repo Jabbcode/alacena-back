@@ -7,9 +7,11 @@ import { CreateMenuDto } from './dto/create-menu.dto';
 import { Menu } from './entities/menu.entity';
 import { Plato } from '../plato/entities/plato.entity';
 import { MenuPlato } from '../menu-plato/entities/menu-plato.entity';
-import { MealType } from '@/interfaces';
+
 import { CreateMenuPlatoDto } from '../menu-plato/dto/create-menu-plato.dto';
 import { FilterMenuDto } from './dto/filter-menu.dto';
+
+import { MealType } from '@/interfaces';
 
 @Injectable()
 export class MenuService {
@@ -46,6 +48,16 @@ export class MenuService {
 
     if (filters.fecha) {
       query.andWhere('menu.fecha = :fecha', { fecha: filters.fecha });
+    }
+
+    if (filters.startDate) {
+      query.andWhere('menu.fecha >= :startDate', {
+        startDate: filters.startDate,
+      });
+    }
+
+    if (filters.endDate) {
+      query.andWhere('menu.fecha <= :endDate', { endDate: filters.endDate });
     }
 
     return await query.getMany();

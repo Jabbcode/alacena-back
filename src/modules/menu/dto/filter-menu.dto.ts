@@ -2,5 +2,11 @@ import { IsOptional } from 'class-validator';
 
 export class FilterMenuDto {
   @IsOptional()
-  fecha: Date;
+  fecha?: Date;
+
+  @IsOptional()
+  startDate?: Date;
+
+  @IsOptional()
+  endDate?: Date;
 }
