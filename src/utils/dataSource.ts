@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 
-import { MenuPlato } from '@/modules/menu-plato/entities/menu-plato.entity';
 import { Menu } from '@/modules/menu/entities/menu.entity';
-import { Plato } from '@/modules/plato/entities/plato.entity';
+import { Plate } from '@/modules/plate/entities/plate.entity';
+import { MenuPlate } from '@/modules/menu-plate/entities/menu-plate.entity';
 
 dotenv.config();
 
@@ -14,7 +14,7 @@ export default new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [Plato, Menu, MenuPlato],
+  entities: [Plate, Menu, MenuPlate],
   synchronize: false, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
   logging: true,
   migrations: [],

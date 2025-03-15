@@ -1,4 +1,3 @@
-import { MenuPlato } from '@/modules/menu-plato/entities/menu-plato.entity';
 import {
   Column,
   Entity,
@@ -7,6 +6,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import { MenuPlate } from '@/modules/menu-plate/entities/menu-plate.entity';
+
 @Entity()
 export class Menu {
   @PrimaryGeneratedColumn()
@@ -14,8 +15,8 @@ export class Menu {
 
   @Column({ type: 'date' })
   @Index('IDX_MENU_FECHA', { unique: true })
-  fecha: Date;
+  date: Date;
 
-  @OneToMany(() => MenuPlato, (menuPlato) => menuPlato.menu, { cascade: true })
-  menuPlatos: MenuPlato[];
+  @OneToMany(() => MenuPlate, (menuPlate) => menuPlate.menu, { cascade: true })
+  menuPlates: MenuPlate[];
 }

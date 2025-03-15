@@ -1,7 +1,7 @@
 import { MealType } from '@/interfaces';
 import { IsEnum } from 'class-validator';
 
-export class CreateMenuPlatoDto {
+export class CreateMenuPlateDto {
   @IsEnum(MealType)
-  categoria: MealType;
+  category: MealType;
 }

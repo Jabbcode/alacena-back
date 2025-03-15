@@ -2,17 +2,27 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 
-import { PlatosModule } from './modules/plato/plato.module';
 import { MenusModule } from './modules/menu/menu.module';
+import { IngredientModule } from './modules/ingredient/ingredient.module';
+import { PlatesModule } from './modules/plate/plate.module';
+import { IngredientPlateModule } from './modules/ingredient-plate/ingredient-plate.module';
+import { MenuPlateModule } from './modules/menu-plate/menu-plate.module';
 
 import { Menu } from './modules/menu/entities/menu.entity';
-import { Plato } from './modules/plato/entities/plato.entity';
-import { MenuPlato } from './modules/menu-plato/entities/menu-plato.entity';
-// import { MenuPlatoModule } from './modules/menu-plato/menu-plato.module';
+import { Plate } from './modules/plate/entities/plate.entity';
+import { Ingredient } from './modules/ingredient/entities/ingredient.entity';
+import { IngredientPlate } from './modules/ingredient-plate/entities/ingredient-plate.entity';
+import { MenuPlate } from './modules/menu-plate/entities/menu-plate.entity';
+
+import { environmentVariablesSchema } from './schemas/environmentVariablesSchema';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: [`.${process.env.NODE_ENV}`.trim() + '.env'],
+      validationSchema: environmentVariablesSchema,
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -20,15 +30,17 @@ import { MenuPlato } from './modules/menu-plato/entities/menu-plato.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Plato, Menu, MenuPlato],
+      entities: [Plate, Menu, MenuPlate, Ingredient, IngredientPlate],
       autoLoadEntities: true,
-      synchronize: true, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
+      synchronize: process.env.NODE_ENV === 'production' ? false : true, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
       logging: true,
       migrations: [],
     }),
-    PlatosModule,
+    PlatesModule,
     MenusModule,
-    // MenuPlatoModule,
+    IngredientModule,
+    IngredientPlateModule,
+    MenuPlateModule,
   ],
   controllers: [],
   providers: [],
