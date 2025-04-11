@@ -32,7 +32,7 @@ import { environmentVariablesSchema } from './schemas/environmentVariablesSchema
       database: process.env.DB_NAME,
       entities: [Plate, Menu, MenuPlate, Ingredient, IngredientPlate],
       autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV === 'production' ? false : true, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
+      synchronize: false, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
       logging: true,
       migrations: [],
       ssl: true,
