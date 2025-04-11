@@ -6,7 +6,7 @@ import { CreateMenuDto } from '../menu/dto/create-menu.dto';
 
 import { MealType } from '@/interfaces';
 
-@Controller('api/v1/menu-plate')
+@Controller('/menu-plate')
 export class MenuPlateController {
   constructor(private readonly menuPlateService: MenuPlateService) {}
 

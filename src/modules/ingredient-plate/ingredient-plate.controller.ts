@@ -4,7 +4,7 @@ import { CreateIngredientPlateDto } from './dto/create-ingredient-plate.dto';
 
 import { IngredientPlateService } from './ingredient-plate.service';
 
-@Controller('api/v1/ingredient-plate')
+@Controller('/ingredient-plate')
 export class IngredientPlateController {
   constructor(
     private readonly ingredientPlateService: IngredientPlateService,

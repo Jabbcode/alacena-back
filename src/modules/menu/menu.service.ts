@@ -37,8 +37,6 @@ export class MenuService {
     query.leftJoinAndSelect('menu.menuPlates', 'menuPlates');
     query.leftJoinAndSelect('menuPlates.plate', 'plate');
 
-    console.log(filters.date);
-
     if (filters.date) {
       query.andWhere('menu.date = :date', { date: filters.date });
     }

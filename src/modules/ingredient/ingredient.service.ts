@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
@@ -9,8 +13,15 @@ import { Ingredient } from './entities/ingredient.entity';
 
 type Response = {
   message?: string;
-  ingredient?: Ingredient;
+  ingredient?: Ingredient | UpdateResult;
   ingredients?: Ingredient[];
+};
+
+type ResponsePagination = {
+  ingredients: Ingredient[];
+  total: number;
+  currentPage: number;
+  totalPages: number;
 };
 
 @Injectable()
@@ -20,63 +31,89 @@ export class IngredientService {
     private ingredientRepository: Repository<Ingredient>,
   ) {}
 
-  async create(createIngredientDto: CreateIngredientDto): Promise<Response> {
-    try {
-      const isIngredientPresent = await this.ingredientRepository.findOne({
+  create(createIngredientDto: CreateIngredientDto): Promise<Response> {
+    return this.ingredientRepository.manager.transaction(async (manager) => {
+      const isIngredientPresent = await manager.findOne(Ingredient, {
         where: {
           name: createIngredientDto.name,
         },
       });
 
       if (isIngredientPresent) {
-        throw new Error('Ya existe un ingrediente con ese nombre');
+        throw new ConflictException('Ya existe un ingrediente con ese nombre');
       }
 
-      const newIngredient =
-        await this.ingredientRepository.save(createIngredientDto);
+      const newIngredient = await manager.save(Ingredient, {
+        name: createIngredientDto.name,
+        purchaseDate: new Date(),
+        isActive: true,
+      });
 
       return {
         message: 'Ingrediente creado correctamente',
         ingredient: newIngredient,
       };
-    } catch (error) {
-      console.log(error);
-    }
+    });
   }
 
-  async findAll(): Promise<Response> {
-    try {
-      const ingredients = await this.ingredientRepository.find();
-      return {
-        ingredients,
-      };
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async findOne(id: number): Promise<Response> {
-    try {
-      const isIngredientPresent = await this.ingredientRepository.findOne({
-        where: { id },
+  findAll(page: number = 1, limit: number = 10): Promise<ResponsePagination> {
+    const skip = Number((page - 1) * limit);
+    return this.ingredientRepository.manager.transaction(async (manager) => {
+      const [ingredients, total] = await manager.findAndCount(Ingredient, {
+        skip,
+        take: limit,
       });
 
-      if (!isIngredientPresent) {
-        throw new Error('No existe un ingrediente con ese id');
-      }
+      return {
+        ingredients,
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+      };
+    });
+  }
 
+  findOne(id: number): Promise<Response> {
+    return this.ingredientRepository.manager.transaction(async (manager) => {
+      const isIngredientPresent = await manager.findOne(Ingredient, {
+        where: { id },
+      });
+      if (!isIngredientPresent) {
+        throw new NotFoundException(`No existe un ingrediente con el id ${id}`);
+      }
       return {
         ingredient: isIngredientPresent,
       };
-    } catch (error) {
-      console.log(error);
-    }
+    });
   }
 
-  async update(
+  update(
     id: number,
     updateIngredientDto: UpdateIngredientDto,
   ): Promise<Response> {
+    return this.ingredientRepository.manager.transaction(async (manager) => {
+      const isIngredientPresent = await manager.findOne(Ingredient, {
+        where: { id },
+      });
+
+      if (!isIngredientPresent) {
+        throw new NotFoundException('No existe un ingrediente con ese id');
+      }
+
+      await manager.update(Ingredient, id, updateIngredientDto);
+
+      const updateIngredient = await manager.findOne(Ingredient, {
+        where: { id },
+      });
+
+      return {
+        message: 'Ingrediente actualizado correctamente',
+        ingredient: updateIngredient,
+      };
+    });
+  }
+
+  async renewIngredient(id: number) {
     try {
       const isIngredientPresent = await this.ingredientRepository.findOne({
         where: { id },
@@ -86,10 +123,13 @@ export class IngredientService {
         throw new Error('No existe un ingrediente con ese id');
       }
 
-      await this.ingredientRepository.update(id, updateIngredientDto);
+      isIngredientPresent.purchaseDate = new Date();
+      isIngredientPresent.isActive = true;
+
+      await this.ingredientRepository.save(isIngredientPresent);
 
       return {
-        message: 'Ingrediente actualizado correctamente',
+        message: 'Ingrediente renovado correctamente',
         ingredient: isIngredientPresent,
       };
     } catch (error) {
@@ -97,7 +137,7 @@ export class IngredientService {
     }
   }
 
-  async remove(id: number): Promise<Response> {
+  async cancelIngreident(id: number): Promise<Response> {
     try {
       const isIngredientPresent = await this.ingredientRepository.findOne({
         where: { id },
@@ -107,10 +147,13 @@ export class IngredientService {
         throw new Error('No existe un ingrediente con ese id');
       }
 
-      await this.ingredientRepository.delete(id);
+      isIngredientPresent.isActive = false;
+
+      await this.ingredientRepository.save(isIngredientPresent);
 
       return {
-        message: 'Ingrediente eliminado correctamente',
+        message:
+          'Ingrediente actualizado correctamente, Debe renovar este ingrediente',
       };
     } catch (error) {
       console.log(error);

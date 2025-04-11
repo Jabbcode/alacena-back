@@ -11,7 +11,7 @@ import { MenuService } from './menu.service';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { FilterMenuDto } from './dto/filter-menu.dto';
 
-@Controller('api/v1/menus')
+@Controller('/menus')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 

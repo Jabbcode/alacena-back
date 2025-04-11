@@ -12,7 +12,7 @@ import { UpdatePlateDto } from './dto/update-plate.dto';
 
 import { PlatesService } from './plates.service';
 
-@Controller('api/v1/plates')
+@Controller('/plates')
 export class PlatesController {
   constructor(private readonly platesService: PlatesService) {}
 

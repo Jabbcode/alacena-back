@@ -5,13 +5,15 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  Query,
 } from '@nestjs/common';
+
 import { IngredientService } from './ingredient.service';
+
 import { CreateIngredientDto } from './dto/create-ingredient.dto';
 import { UpdateIngredientDto } from './dto/update-ingredient.dto';
 
-@Controller('api/v1/ingredients')
+@Controller('/ingredients')
 export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
 
@@ -21,8 +23,8 @@ export class IngredientController {
   }
 
   @Get()
-  findAll() {
-    return this.ingredientService.findAll();
+  findAll(@Query('page') page: number, @Query('limit') limit: number) {
+    return this.ingredientService.findAll(page, limit);
   }
 
   @Get(':id')
@@ -38,8 +40,13 @@ export class IngredientController {
     return this.ingredientService.update(id, updateIngredientDto);
   }
 
-  @Delete(':id')
+  @Patch('/renew/:id')
+  renewIngredient(@Param('id') id: number) {
+    return this.ingredientService.renewIngredient(id);
+  }
+
+  @Patch('/cancel/:id')
   remove(@Param('id') id: number) {
-    return this.ingredientService.remove(id);
+    return this.ingredientService.cancelIngreident(id);
   }
 }
