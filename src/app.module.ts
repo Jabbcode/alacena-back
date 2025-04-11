@@ -35,6 +35,7 @@ import { environmentVariablesSchema } from './schemas/environmentVariablesSchema
       synchronize: process.env.NODE_ENV === 'production' ? false : true, // Sincroniza automáticamente la estructura de la BD (NO USAR EN PRODUCCIÓN)
       logging: true,
       migrations: [],
+      ssl: true,
     }),
     PlatesModule,
     MenusModule,
